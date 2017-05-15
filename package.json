@@ -1,0 +1,23 @@
+{
+  "name": "jinge-framework",
+  "version": "1.0.0",
+  "description": "yet another node server framework",
+  "main": "index.js",
+  "dependencies": {
+    "mongodb": "^2.2.26"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jing-js/jinge-framework.git"
+  },
+  "author": "Yuhang Ge",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jing-js/jinge-framework/issues"
+  },
+  "homepage": "https://github.com/jing-js/jinge-framework#readme"
+}
