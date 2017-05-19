@@ -4,7 +4,6 @@ const util = require('../util');
 const SilenceContext = require('./context');
 const cluster = require('cluster');
 const RouteManager = require('./route');
-const CookieStore = require('./cookie');
 const DEFAULT_PORT = 80;
 const DEFAULT_HOST = '0.0.0.0';
 const OPTIONS_HANDLER = 'OPTIONS';
@@ -28,7 +27,6 @@ class SilenceApplication {
     this._noAccessLog = config.noAccessLog !== false;
     this.ENV = config.ENV || {};
     this._route = config.router ? config.router : new RouteManager(config.logger);
-    this._CookieStoreClass = config.CookieStoreClass || CookieStore;
     this._ContextClass = config.ContextClass || SilenceContext;
 
     this.__cleanup = false;

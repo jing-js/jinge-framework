@@ -211,52 +211,6 @@ class ${name} {
   static get collection() {
     return collection;
   }
-  static _dealUpdateDoc(doc) {
-    for(let op in doc) {  // $set, $max, etc...
-      if (typeof doc[op] === 'object') {
-        this._dealInsertDoc(doc[op]);
-      }
-    }
-  }
-  static _dealInsertDoc(doc) {
-    for(let fieldName in doc) {
-      let v = doc[fieldName];
-      if (v === undefined || v === null) {
-        continue;
-      }
-      let v2 = this._dealFieldV(v, fieldName);
-      if (v2 === undefined) {
-        delete doc[fieldName];
-      } else if (v2 !== v) {
-        doc[fieldName] = v2;
-      }
-    }
-  }
-  static _dealFieldV(v, fieldName) {
-    switch (fieldName) {${fields.map((field, idx) => {
-  let v2 = '';
-  let code = `
-      case '${field.name}':`;
-  if (field.convert) {
-    if (typeof field.convert === 'function') {
-      v2 = `return fc.${PREFIX}${field.name}(v);`
-    } else if (typeof field.convert === 'string' && util.converters.hasOwnProperty(field.convert)) {
-      v2 = `return fc.${PREFIX}${field.name}(v);`
-    }
-  } else if (field.type !== 'any' && util.converters.hasOwnProperty(field.type)) {
-    v2 = `if (typeof v !== '${field.type}') return fc.${PREFIX}${field.name}(v);`
-  }
-  code += `
-        ${v2}
-        break;`;
-  return code;
-}).join('')}
-      default:
-        return undefined;
-        break;
-    }
-    return v;
-  }
   /**
    *
    * @param query
@@ -312,7 +266,6 @@ class ${name} {
     });
   }
   static oneUpdate(query, doc, options) {
-    if (!options || options.__deal !== false) this._dealUpdateDoc(doc);
     return collection.findOneAndUpdate(query, doc, ${_wc ? `options ? Object.assign(options, writeConcern) : writeConcern` : 'options'}).then(result => {
       if (!result || !result.value) return null;
       extract(result.value);
@@ -320,7 +273,6 @@ class ${name} {
     });
   }
   static oneReplace(query, doc, options) {
-    if (!options || options.__deal !== false) this._dealUpdateDoc(doc);
     return collection.findOneAndReplace(query, doc, ${_wc ? `options ? Object.assign(options, writeConcern) : writeConcern` : 'options'}).then(result => {
       if (!result || !result.value) return null;
       extract(result.value);
@@ -341,11 +293,13 @@ class ${name} {
       return options && options.__json ? doc : new this(doc, true);
     });
   }
+  static remove(query, options) {
+    return collection.remove(query, ${_wc ? `options ? Object.assign(options, writeConcern) : writeConcern` : 'options'});
+  }
   static count() {
     return Promise.reject('not implement as shard concern, see: https://docs.mongodb.com/v3.2/reference/method/db.collection.count/');
   }
   static updateOne(query, doc, options) {
-    if (!options || options.__deal !== false) this._dealUpdateDoc(doc);
     return collection.updateOne(query, doc, ${_wc ? `options ? Object.assign(options, writeConcern) : writeConcern` : 'options'}).then(result => {
       return result && result.modifiedCount === 1;
     });

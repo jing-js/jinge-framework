@@ -5,6 +5,7 @@ const path = require('path');
 const formatDate = require('./format_date');
 const { getClientIp, getRemoteIp } = require('./getip');
 const converters = require('./converters');
+const { parseCookieStr, parseCookieOption } = require('./cookie');
 
 function genRandomBytes(size) {
   return new Promise((resolve, reject) => {
@@ -102,6 +103,8 @@ function formatError(err) {
 }
 
 module.exports = {
+  parseCookieStr,
+  parseCookieOption,
   registerValidators(newValidators) {
     Object.assign(validators, newValidators);
   },

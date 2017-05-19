@@ -15,7 +15,6 @@ class SilenceContext {
     this._urole = null;
     this._usession = null;
     this._cookie = null;
-    this._store = null;
     this._code = 0;
     this._isSent = false;
     this._finalSent = false;
@@ -32,9 +31,6 @@ class SilenceContext {
   }
 
   destroy() {
-    if (this._store) {
-      this._store.clear();
-    }
     this._cookie = null;
     this._app = null;
     this._originRequest = null;
@@ -42,7 +38,6 @@ class SilenceContext {
     this._body = null;
     this._uid = null;
     this._urole = null;
-    this._usession = null;
     this._query = null;
     this._post = null;
     this._multipart = null;
@@ -203,18 +198,6 @@ class SilenceContext {
     }
     return this._query;
   }
-  get store() {
-    if (this._store === null) {
-      this._store = new Map();
-    }
-    return this._store;
-  }
-  get cookie() {
-    if (this._cookie === null) {
-      this._cookie = new this._app._CookieStoreClass(this);
-    }
-    return this._cookie;
-  }
   get logger() {
     return this._app.logger;
   }
@@ -239,12 +222,6 @@ class SilenceContext {
   get isLogin() {
     return this._uid !== null;
   }
-  get userSession() {
-    return this._usession;
-  }
-  set userSession(val) {
-    this._usession = val;
-  }
   get userId() {
     return this._uid;
   }
@@ -256,6 +233,17 @@ class SilenceContext {
   }
   set userRole(val) {
     this._urole = val;
+  }
+  getSessionCookie(sessionKey, tokenLength) {
+    let _cstr = this._originRequest.headers.cookie;
+    if (!_cstr 
+      || _cstr.length !== (sessionKey.length + 1 + tokenLength)
+      || !_cstr.startsWith(sessionKey)) return null;
+    
+    return _cstr.substring(sessionKey.length + 1);
+  }
+  setSessionCookie(sessionKey, token, options) {
+    this._cookie = util.parseCookieStr(sessionKey, token, options); 
   }
   get accessId() {
     return this._uid;
@@ -305,8 +293,8 @@ class SilenceContext {
     if (this._body) {
       this._originResponse.setHeader('Content-Type', this._type);
     }
-    if (this._cookie && this._cookie._cookieToSend.length > 0) {
-      this._originResponse.setHeader('Set-Cookie', this._cookie._cookieToSend);
+    if (this._cookie) {
+      this._originResponse.setHeader('Set-Cookie', this._cookie);
     }
     this._originResponse.writeHead(hc);
     this._originResponse.end(this._body);
