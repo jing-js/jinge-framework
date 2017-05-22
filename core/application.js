@@ -11,7 +11,7 @@ const http = require('http');
 const https = require('https');
 
 class SilenceApplication {
-  constructor(config) {
+  constructor(config, ENV) {
     this.logger = config.logger;
     this._WebSocketServer = config.ws ? config.ws.ServerClass : null;
     this._WebSocketManager = config.ws ? config.ws.ManagerClass : null;
@@ -25,7 +25,7 @@ class SilenceApplication {
     this.passwordService = config.passwordService;
     this._httpsOptions = config.httpsOptions || null;
     this._noAccessLog = config.noAccessLog !== false;
-    this.ENV = config.ENV || {};
+    this.ENV = ENV || {};
     this._route = config.router ? config.router : new RouteManager(config.logger);
     this._ContextClass = config.ContextClass || SilenceContext;
 
